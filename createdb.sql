@@ -17,6 +17,5 @@ CREATE TABLE result_data (
     resultTime BIGINT NOT NULL,
     result VARCHAR(10) NOT NULL,    
     source VARCHAR(200) NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (url_id) REFERENCES accepted_urls(id)
+    PRIMARY KEY (id)    
 );
