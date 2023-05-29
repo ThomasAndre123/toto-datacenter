@@ -41,8 +41,12 @@ app.get('/', async (req, res) => {
         buff += '<tr>'; 
         buff += `<td>${resultData[i].id}</td>`;
         buff += `<td>${resultData[i].AcceptedUrl.name}</td>`;
-        buff += `<td>${resultData[i].closeTime}</td>`;
-        buff += `<td>${resultData[i].resultTime}</td>`;
+        // convert close time to human readable
+        const closeTime = new Date(resultData[i].closeTime);
+        buff += `<td>${closeTime}</td>`;
+        // convert result time to human readable
+        const resultTime = new Date(resultData[i].resultTime);        
+        buff += `<td>${resultTime}</td>`;
         buff += `<td>${resultData[i].result}</td>`;
         buff += `<td>${resultData[i].source}</td>`;
         buff += '</tr>';    
