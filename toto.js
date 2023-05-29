@@ -4,11 +4,8 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
 
-const { Sequelize } = require('sequelize')
-
-const sequelize = new Sequelize(process.env.DB_URL, {	
-	logging: process.env.NODE_ENV === 'production' ? false : console.log,	
-})
+const AcceptedUrl = require('./models/accepted_url');
+const ResultData = require('./models/result_data');
 
 app.use(express.urlencoded({
     extended: false,
@@ -27,11 +24,40 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.post('/result', (req, res) => {
+// helper function
+function getDomainFromUrl(x) {
+    return x.replace(/(^\w+:|^)\/\//, '')
+        .replace(/^www\./, '')
+        .replace(/\/.*$/, '')
+        .replace(/\?.*$/, '')
+        .replace(/#.*$/, '')
+}
+
+app.post('/result', async (req, res) => {
     const { source, marketName, codeName, websiteUrl, closeTime, resultTime, result } = req.body
-    console.log(
-        source, marketName, codeName, websiteUrl, closeTime, resultTime, result
-    )
+    // console.log(
+    //     source, marketName, codeName, websiteUrl, closeTime, resultTime, result
+    // )
+
+    // check if url is accepted
+    const url = getDomainFromUrl(websiteUrl)
+    const acceptedUrl = await AcceptedUrl.findOne({
+        where: { url: url }
+    });
+    if (!acceptedUrl) {
+        res.json({ code:1, message: 'URL not accepted'})
+        return
+    }
+    
+    // save to db
+    await ResultData.create({
+        urlId: acceptedUrl.id,
+        closeTime: closeTime,
+        resultTime: resultTime,
+        result: result,
+        source: source,
+    });
+
     res.json({ code:0, message: 'OK'})
 })
 
