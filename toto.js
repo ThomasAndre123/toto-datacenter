@@ -28,9 +28,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/result', (req, res) => {
-    const { source, marketName, marketCode, websiteUrl, closeTime, resultTime, result } = req.body
+    const { source, marketName, codeName, websiteUrl, closeTime, resultTime, result } = req.body
     console.log(
-        source, marketName, marketCode, websiteUrl, closeTime, resultTime, result
+        source, marketName, codeName, websiteUrl, closeTime, resultTime, result
     )
     res.json({ code:0, message: 'OK'})
 })
