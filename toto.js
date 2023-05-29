@@ -20,8 +20,35 @@ app.use(express.json({
 }));
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+app.get('/', async (req, res) => {
+    // render html table of last result
+    const resultData = await ResultData.findAll({
+        limit: 100,
+        order: [['id', 'DESC']],
+        include: [AcceptedUrl],
+    });
+    let buff = '';
+    buff += '<table border="1">';
+    buff += '<tr>'; 
+    buff += '<th>id</th>';
+    buff += '<th>name</th>';
+    buff += '<th>closeTime</th>';
+    buff += '<th>resultTime</th>';
+    buff += '<th>result</th>';
+    buff += '<th>source</th>';            
+    buff += '</tr>';    
+    for (let i = 0; i < resultData.length; i++) {
+        buff += '<tr>'; 
+        buff += `<td>${resultData[i].id}</td>`;
+        buff += `<td>${resultData[i].AcceptedUrl.name}</td>`;
+        buff += `<td>${resultData[i].closeTime}</td>`;
+        buff += `<td>${resultData[i].resultTime}</td>`;
+        buff += `<td>${resultData[i].result}</td>`;
+        buff += `<td>${resultData[i].source}</td>`;
+        buff += '</tr>';    
+    }
+    buff += '</table>';
+    res.send(buff);
 })
 
 // helper function
