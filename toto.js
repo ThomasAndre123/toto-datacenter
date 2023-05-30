@@ -143,6 +143,7 @@ app.get('/report', async (req, res) => {
             name: acceptedUrl.name,
             lastResult: lastResult,
             lastResultCount: lastResultCount,
+            closeTime: resultData[0].closeTime,
             resultTime: resultData[0].resultTime,
         })
     }
