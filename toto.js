@@ -92,6 +92,39 @@ app.post('/result', async (req, res) => {
     res.json({ code:0, message: 'OK'})
 })
 
+app.get('/report', async (req, res) => {
+    const data = await ResultData.findAll({
+        limit: 100,
+        order: [['id', 'DESC']],
+        include: [AcceptedUrl],
+    })
+
+    // group by url
+    const urlMap = {}
+    for (let i = 0; i < data.length; i++) {
+        const url = data[i].AcceptedUrl.name
+        if (!urlMap[url]) {
+            urlMap[url] = []
+        }
+        urlMap[url].push(data[i])
+    }
+
+    // response as json
+    const result = []
+    for (const url in urlMap) {
+        const arr = urlMap[url]
+        const obj = {
+            url: url,
+            count: arr.length,
+            lastResult: arr[0].result,
+            lastResultTime: arr[0].resultTime,
+        }
+        result.push(obj)
+    }
+    res.json(result)
+
+})
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`)
 })
