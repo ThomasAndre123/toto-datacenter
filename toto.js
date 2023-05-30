@@ -141,6 +141,7 @@ app.get('/report', async (req, res) => {
         }
         report.push({
             name: acceptedUrl.name,
+            url: acceptedUrl.url,
             lastResult: lastResult,
             lastResultCount: lastResultCount,
             closeTime: resultData[0].closeTime,
