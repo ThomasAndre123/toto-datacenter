@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000
 
 const AcceptedUrl = require('./models/accepted_url');
 const ResultData = require('./models/result_data');
+const { Op } = require('sequelize');
 
 app.use(express.urlencoded({
     extended: false,
