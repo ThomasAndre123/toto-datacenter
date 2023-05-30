@@ -103,35 +103,49 @@ app.post('/result', async (req, res) => {
 })
 
 app.get('/report', async (req, res) => {
-    const data = await ResultData.findAll({
+
+    // exclude name = DEBUG if node env is production
+    const where = {}
+    if (process.env.NODE_ENV === 'production') {
+        where.name = {
+            [Op.not]: 'DEBUG'
+        }
+    }
+    const acceptedUrls = await AcceptedUrl.findAll({
         limit: 100,
         order: [['id', 'DESC']],
-        include: [AcceptedUrl],
+        where: where,
+        raw: true,
     })
 
-    // group by url
-    const urlMap = {}
-    for (let i = 0; i < data.length; i++) {
-        const url = data[i].AcceptedUrl.name
-        if (!urlMap[url]) {
-            urlMap[url] = []
+    // loop each urls, get last result limit 7 (our current reliable source is 7)
+    const report = [];
+    for (let i = 0; i < acceptedUrls.length; i++) {
+        const acceptedUrl = acceptedUrls[i]
+        const resultData = await ResultData.findAll({
+            limit: 7,
+            order: [['id', 'DESC']],
+            where: { urlId: acceptedUrl.id, },
+            raw: true,
+        })
+        let lastResult = null;
+        let lastResultCount = 0;
+        if (resultData) {
+            lastResult = resultData[0].result;
+            for (let j = 0; j < resultData.length; j++) {
+                if (resultData[j].result === lastResult) {
+                    lastResultCount += 1;
+                }
+            }
         }
-        urlMap[url].push(data[i])
+        report.push({
+            name: acceptedUrl.name,
+            lastResult: lastResult,
+            lastResultCount: lastResultCount,
+            resultTime: resultData[0].resultTime,
+        })
     }
-
-    // response as json
-    const result = []
-    for (const url in urlMap) {
-        const arr = urlMap[url]
-        const obj = {
-            url: url,
-            count: arr.length,
-            lastResult: arr[0].result,
-            lastResultTime: arr[0].resultTime,
-        }
-        result.push(obj)
-    }
-    res.json(result)
+    res.json(report)
 
 })
 
