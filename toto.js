@@ -28,7 +28,17 @@ app.get('/', async (req, res) => {
         include: [AcceptedUrl],
     });
     let buff = '';
-    buff += '<table border="1">';
+    buff += `
+    <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 5px;
+    }
+    </style>
+    `;
+    buff += '<table>';
     buff += '<tr>'; 
     buff += '<th>id</th>';
     buff += '<th>name</th>';
@@ -43,10 +53,10 @@ app.get('/', async (req, res) => {
         buff += `<td>${resultData[i].AcceptedUrl.name}</td>`;
         // convert close time to human readable
         const closeTime = new Date(resultData[i].closeTime);
-        buff += `<td>${closeTime}</td>`;
+        buff += `<td>${closeTime.toLocaleString()}</td>`;
         // convert result time to human readable
         const resultTime = new Date(resultData[i].resultTime);        
-        buff += `<td>${resultTime}</td>`;
+        buff += `<td>${resultTime.toLocaleString()}</td>`;
         buff += `<td>${resultData[i].result}</td>`;
         buff += `<td>${resultData[i].source}</td>`;
         buff += '</tr>';    
