@@ -119,22 +119,27 @@ app.get('/report', async (req, res) => {
         raw: true,
     })
 
-    // loop each urls, get last result limit 7 (our current reliable source is 7)
+    // loop each urls
+    const RECORD_LIMIT = 20;
     const report = [];
     for (let i = 0; i < acceptedUrls.length; i++) {
         const acceptedUrl = acceptedUrls[i]
         const resultData = await ResultData.findAll({
-            limit: 7,
+            limit: RECORD_LIMIT,
             order: [['id', 'DESC']],
             where: { urlId: acceptedUrl.id, },
             raw: true,
         })
         let lastResult = null;
+        let lastCloseTime = null;
         let lastResultCount = 0;
         if (resultData) {
             lastResult = resultData[0].result;
+            lastCloseTime = resultData[0].closeTime;
             for (let j = 0; j < resultData.length; j++) {
-                if (resultData[j].result === lastResult) {
+                const deltaCloseTime = Math.abs(resultData[j].closeTime - lastCloseTime);
+                // delta close time should not more than 1 hours
+                if (resultData[j].result === lastResult && deltaCloseTime < 60 * 60 * 1000) {
                     lastResultCount += 1;
                 }
             }
